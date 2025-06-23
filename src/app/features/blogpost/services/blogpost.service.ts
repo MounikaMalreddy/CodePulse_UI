@@ -15,4 +15,13 @@ export class BlogpostService {
   getAllBlogPosts(): Observable<any[]> {
     return this._http.get<any[]>(this.apiUrl + '/GetAllBlogPosts');
   }
+  getBlogPostById(id: string): Observable<any> {
+    return this._http.get<any>(`${this.apiUrl}/GetBlogPostById/${id}`);
+  }
+  updateBlogPost(id:string, blogPost: any): Observable<any> {
+    return this._http.put<any>(`${this.apiUrl}/UpdateBlogPostById/${id}`, blogPost);
+  }
+  deleteBlogPost(id: string): Observable<any> {
+    return this._http.delete<any>(`${this.apiUrl}/DeleteBlogPostById/${id}`);
+  }
 }

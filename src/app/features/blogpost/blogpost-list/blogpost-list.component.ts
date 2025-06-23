@@ -19,6 +19,17 @@ export class BlogpostListComponent implements OnInit {
     this.blogPosts$ = this.blogPostService.getAllBlogPosts();
   }
 
-  onDeleteBlogPost(blogPostId: string): void {}
+  onDeleteBlogPost(blogPostId: string): void {
+    this.blogPostService.deleteBlogPost(blogPostId).subscribe({
+      next: () => {
+        console.log(`Blog post with ID ${blogPostId} deleted successfully.`);
+        // Refresh the list after deletion
+        this.blogPosts$ = this.blogPostService.getAllBlogPosts();
+      }
+      , error: (error) => {
+        console.error(`Error deleting blog post with ID ${blogPostId}:`, error);
+      }
+    });
+  }
 
 }

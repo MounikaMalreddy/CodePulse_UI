@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BlogpostService } from '../services/blogpost.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-add-blogpost',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './add-blogpost.component.html',
   styleUrl: './add-blogpost.component.css'
 })
