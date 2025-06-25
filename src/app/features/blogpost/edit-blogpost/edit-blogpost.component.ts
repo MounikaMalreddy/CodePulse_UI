@@ -2,10 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BlogpostService } from '../services/blogpost.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { CategoryService } from '../../category/services/category.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-edit-blogpost',
-  imports: [ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule, CommonModule],
   templateUrl: './edit-blogpost.component.html',
   styleUrl: './edit-blogpost.component.css',
 })
@@ -14,15 +17,18 @@ export class EditBlogpostComponent implements OnInit {
   blogPost: any;
   updateBlogPostForm!: FormGroup;
   currentDate: any;
+  categoriesList$!: Observable<any[]>;
   constructor(
     private route: ActivatedRoute,
     private blogPostService: BlogpostService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private categoryService: CategoryService
   ) {
     this.currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
   }
   ngOnInit(): void {
+    this.categoriesList$ = this.categoryService.getCategories();
     this.updateBlogPostForm = this.fb.group({
       id: [''],
       title: [''],
@@ -33,6 +39,8 @@ export class EditBlogpostComponent implements OnInit {
       dateCreated: [this.currentDate],
       author: [''],
       isVisible: [true], // Default to true
+      categories: [],
+      selectedCategories: [[]], // Initialize as an empty array
     });
 
     this.route.paramMap.subscribe((params) => {
@@ -42,11 +50,20 @@ export class EditBlogpostComponent implements OnInit {
         console.log(`Editing blog post with ID: ${id}`);
         this.blogPostService.getBlogPostById(id).subscribe(
           (blogPost) => {
+            const selectedIds = blogPost.categories.map((x: any) => x.id); // Extract category IDs
+            console.log('selectedCategories:', selectedIds);
             console.log('Blog post data:', blogPost);
             blogPost.dateCreated = new Date(blogPost.dateCreated)
               .toISOString()
               .split('T')[0]; // Convert date to YYYY-MM-DD format
-            this.updateBlogPostForm.patchValue(blogPost);
+            this.updateBlogPostForm.patchValue({
+              ...blogPost,
+              selectedCategories: selectedIds, // ✅ PATCH the category IDs
+            });
+            console.log(
+              'Form values after patch:',
+              this.updateBlogPostForm.value
+            );
           },
           (error) => {
             console.error('Error fetching blog post:', error);
@@ -69,8 +86,14 @@ export class EditBlogpostComponent implements OnInit {
     }
     if (this.updateBlogPostForm.valid && this.id) {
       console.log('Form is valid. Proceeding with update...');
+      }
+      const formData = {
+        ...this.updateBlogPostForm.value,
+        categories: this.updateBlogPostForm.value.selectedCategories
+      };
+      console.log('Form data to be sent:', formData);
       this.blogPostService
-        .updateBlogPost(this.id!, this.updateBlogPostForm.value)
+        .updateBlogPost(this.id!, formData)
         .subscribe({
           next: (response) => {
             console.log('Blog post updated successfully:', response);
@@ -84,4 +107,4 @@ export class EditBlogpostComponent implements OnInit {
         });
     }
   }
-}
+
