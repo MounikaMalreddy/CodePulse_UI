@@ -5,10 +5,16 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CategoryService } from '../../category/services/category.service';
 import { Observable } from 'rxjs';
+import { ImageSelectorComponent } from '../../../shared/components/image-selector/image-selector.component';
 
 @Component({
   selector: 'app-edit-blogpost',
-  imports: [ReactiveFormsModule, RouterModule, CommonModule],
+  imports: [
+    ReactiveFormsModule,
+    RouterModule,
+    CommonModule,
+    ImageSelectorComponent,
+  ],
   templateUrl: './edit-blogpost.component.html',
   styleUrl: './edit-blogpost.component.css',
 })
@@ -18,6 +24,7 @@ export class EditBlogpostComponent implements OnInit {
   updateBlogPostForm!: FormGroup;
   currentDate: any;
   categoriesList$!: Observable<any[]>;
+  isImageSelectorVisible:boolean = false;
   constructor(
     private route: ActivatedRoute,
     private blogPostService: BlogpostService,
@@ -86,25 +93,29 @@ export class EditBlogpostComponent implements OnInit {
     }
     if (this.updateBlogPostForm.valid && this.id) {
       console.log('Form is valid. Proceeding with update...');
-      }
-      const formData = {
-        ...this.updateBlogPostForm.value,
-        categories: this.updateBlogPostForm.value.selectedCategories
-      };
-      console.log('Form data to be sent:', formData);
-      this.blogPostService
-        .updateBlogPost(this.id!, formData)
-        .subscribe({
-          next: (response) => {
-            console.log('Blog post updated successfully:', response);
-            alert('Blog post updated successfully!');
-            this.router.navigate(['/admin/blogposts']);
-          },
-          error: (error) => {
-            console.error('Error updating blog post:', error);
-            alert('Failed to update blog post. Please try again.');
-          },
-        });
     }
+    const formData = {
+      ...this.updateBlogPostForm.value,
+      categories: this.updateBlogPostForm.value.selectedCategories,
+    };
+    console.log('Form data to be sent:', formData);
+    this.blogPostService.updateBlogPost(this.id!, formData).subscribe({
+      next: (response) => {
+        console.log('Blog post updated successfully:', response);
+        alert('Blog post updated successfully!');
+        this.router.navigate(['/admin/blogposts']);
+      },
+      error: (error) => {
+        console.error('Error updating blog post:', error);
+        alert('Failed to update blog post. Please try again.');
+      },
+    });
   }
 
+  openImageSelector(): void {
+    this.isImageSelectorVisible = true;
+  }
+  onCloseImageSelector(): void {
+    this.isImageSelectorVisible = false;
+  }
+}
