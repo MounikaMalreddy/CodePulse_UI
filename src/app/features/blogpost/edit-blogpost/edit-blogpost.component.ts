@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { CategoryService } from '../../category/services/category.service';
 import { Observable } from 'rxjs';
 import { ImageSelectorComponent } from '../../../shared/components/image-selector/image-selector.component';
+import { ImageService } from '../../../shared/services/image.service';
 
 @Component({
   selector: 'app-edit-blogpost',
@@ -30,7 +31,8 @@ export class EditBlogpostComponent implements OnInit {
     private blogPostService: BlogpostService,
     private fb: FormBuilder,
     private router: Router,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private imageService:ImageService
   ) {
     this.currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
   }
@@ -78,6 +80,15 @@ export class EditBlogpostComponent implements OnInit {
         );
       } else {
         console.error('No ID provided for editing blog post');
+      }
+    });
+    this.imageService.onSelectImage().subscribe((image: any) => {
+      if (image) {
+        console.log('Selected image:', image);
+        this.updateBlogPostForm.patchValue({
+          featuredImageUrl: image.url, // Assuming image has an 'imageUrl' property
+        });
+        this.isImageSelectorVisible = false; // Close the image selector after selection
       }
     });
   }
