@@ -24,4 +24,7 @@ export class BlogpostService {
   deleteBlogPost(id: string): Observable<any> {
     return this._http.delete<any>(`${this.apiUrl}/DeleteBlogPostById/${id}`);
   }
+  getBlogPostByUrlHandle(urlHandle: string): Observable<any> {
+    return this._http.get<any>(`${this.apiUrl}/GetBlogPostByUrlHandle/${urlHandle}`);
+  }
 }
