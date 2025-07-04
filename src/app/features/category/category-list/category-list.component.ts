@@ -54,13 +54,15 @@ export class CategoryListComponent implements OnInit {
     });
   }
   onSearch(filterQuery: string): void {
-    this.categories$ = this.categoryService.getCategories(filterQuery);
+    this.categories$ = this.categoryService.getCategories(filterQuery,undefined,undefined, this.pageNumber, this.pageSize);
   }
   sort(sortBy: string, sortDirection: string): void {
     this.categories$ = this.categoryService.getCategories(
       undefined,
       sortBy,
-      sortDirection
+      sortDirection,
+      this.pageNumber,
+      this.pageSize
     );
   }
   getPage(pageNumber: number): void {
