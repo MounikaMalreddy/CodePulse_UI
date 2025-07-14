@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CategoryService } from '../services/category.service';
 import { Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-category-list',
@@ -16,18 +17,23 @@ export class CategoryListComponent implements OnInit {
   totalCategoriesCount: number = 0;
   pageNumber: number = 1;
   pageSize: number = 5;
-  categoriesCountList:number[] =[];
+  categoriesCountList: number[] = [];
   constructor(
     private categoryService: CategoryService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastr: ToastrService
   ) {}
   ngOnInit(): void {
+    this.getCategoriesCount();
+  }
+  private getCategoriesCount(): void {
     this.categoryService.getCategoriesCount().subscribe({
       next: (count) => {
         console.log('Total categories count:', count);
         this.totalCategoriesCount = count;
         this.categoriesCountList = new Array(
-          Math.ceil(this.totalCategoriesCount / this.pageSize));
+          Math.ceil(this.totalCategoriesCount / this.pageSize)
+        );
         this.categories$ = this.categoryService.getCategories(
           undefined,
           undefined,
@@ -44,17 +50,23 @@ export class CategoryListComponent implements OnInit {
   onDeleteCategory(id: string): void {
     this.categoryService.deleteCategory(id).subscribe({
       next: () => {
-        alert('Category deleted successfully');
-        this.categories$ = this.categoryService.getCategories(); // Refresh the list
+        this.getCategoriesCount();
+        this.toastr.success('Category deleted successfully', 'Success');
       },
       error: (err) => {
+        this.toastr.error('Failed to delete category', 'Error');
         console.error('Error deleting category:', err);
-        alert('Failed to delete category');
       },
     });
   }
   onSearch(filterQuery: string): void {
-    this.categories$ = this.categoryService.getCategories(filterQuery,undefined,undefined, this.pageNumber, this.pageSize);
+    this.categories$ = this.categoryService.getCategories(
+      filterQuery,
+      undefined,
+      undefined,
+      this.pageNumber,
+      this.pageSize
+    );
   }
   sort(sortBy: string, sortDirection: string): void {
     this.categories$ = this.categoryService.getCategories(
@@ -76,10 +88,10 @@ export class CategoryListComponent implements OnInit {
     );
   }
   getNextPage(): void {
-    if(this.pageNumber+1> this.categoriesCountList.length){
+    if (this.pageNumber + 1 > this.categoriesCountList.length) {
       return;
     }
-    this.pageNumber+=1;
+    this.pageNumber += 1;
     this.categories$ = this.categoryService.getCategories(
       undefined,
       undefined,
@@ -89,10 +101,10 @@ export class CategoryListComponent implements OnInit {
     );
   }
   getPrevPage(): void {
-    if(this.pageNumber-1<1){
+    if (this.pageNumber - 1 < 1) {
       return;
     }
-    this.pageNumber-=1;
+    this.pageNumber -= 1;
     this.categories$ = this.categoryService.getCategories(
       undefined,
       undefined,
